@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Dashboard from './components/Dashboard';
 import StockForm from './components/StockForm';
 import StockList from './components/StockList';
-import { fetchStockPrice, searchStockSymbols } from './api/finnhub';  // You'll create this function
+import { fetchStockPrice, searchStockSymbols } from './api/finnhub';
+import MyComponent from './components/MyComponent';
 
 const initialStocks = [
   { id: 1, symbol: 'AAPL', quantity: 10, purchasePrice: 150 },
@@ -10,7 +11,7 @@ const initialStocks = [
   { id: 3, symbol: 'MSFT', quantity: 20, purchasePrice: 300 },
 ];
 
-const App = () => {
+const PortfolioTracker = () => {
   const [stocks, setStocks] = useState(initialStocks);
   const [stockPrices, setStockPrices] = useState({});
   const [currentStock, setCurrentStock] = useState({ symbol: '', quantity: 0, purchasePrice: 0 });
@@ -68,7 +69,6 @@ const App = () => {
     );
   };
 
-  // Function to search stock symbols from Finnhub API
   const handleSearch = async (term) => {
     setSearchTerm(term);
     if (term === '') {
@@ -77,7 +77,7 @@ const App = () => {
     }
 
     try {
-      const results = await searchStockSymbols(term);  // Fetch matching stock symbols from Finnhub
+      const results = await searchStockSymbols(term);
       setSearchResults(results);
     } catch (error) {
       console.error('Error fetching search results:', error);
@@ -85,43 +85,14 @@ const App = () => {
     }
   };
 
-  // Function to handle selecting a stock from search results
   const handleSelectStock = (stock) => {
     setCurrentStock({ ...currentStock, symbol: stock.symbol });
-    setSearchTerm('');  // Clear search after selection
-    setSearchResults([]);  // Hide dropdown after selection
+    setSearchTerm('');
+    setSearchResults([]);
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Simple Portfolio Tracker</h1>
-
-      {/* Search Input with Dropdown */}
-      <div className="mb-4 relative">
-        <input
-          type="text"
-          placeholder="Search Stock by Symbol"
-          value={searchTerm}
-          onChange={(e) => handleSearch(e.target.value)}
-          className="p-2 border rounded w-full"
-        />
-        
-        {/* Dropdown for Search Results */}
-        {searchResults.length > 0 && (
-          <div className="absolute bg-white border rounded shadow-lg mt-1 w-full max-h-60 overflow-y-auto z-10">
-            {searchResults.map((stock) => (
-              <div
-                key={stock.symbol}
-                onClick={() => handleSelectStock(stock)}
-                className="p-2 cursor-pointer hover:bg-gray-100"
-              >
-                {stock.symbol}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
+    <div>
       <Dashboard
         totalValue={calculateTotalValue()}
         topStock={calculateTopStock()}
@@ -130,7 +101,6 @@ const App = () => {
           value: s.quantity * (stockPrices[s.symbol] || s.purchasePrice),
         }))}
       />
-
       <StockForm
         stock={currentStock}
         setStock={setCurrentStock}
@@ -138,6 +108,15 @@ const App = () => {
         isEditing={isEditing}
       />
       <StockList stocks={stocks} onEdit={handleEdit} onDelete={handleDelete} />
+    </div>
+  );
+};
+
+const App = () => {
+  return (
+    <div>
+      <PortfolioTracker />
+      <MyComponent />
     </div>
   );
 };
